@@ -1,5 +1,5 @@
 cs50
-guncorn
+gunicorn
 Flask
 Flask-Session
 passlib
