@@ -4,4 +4,3 @@ Flask-Session
 passlib
 psycopg2-binary
 SQLAlchemy
-psycopg2

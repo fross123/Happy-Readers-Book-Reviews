@@ -1,5 +1,4 @@
 import os
-import psycopg2
 
 from flask import Flask, session, render_template
 from flask_session import Session
