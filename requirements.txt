@@ -3,5 +3,5 @@ gunicorn
 Flask
 Flask-Session
 passlib
-psycopg2-binary
+psycopg2
 SQLAlchemy

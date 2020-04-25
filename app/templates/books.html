@@ -8,11 +8,14 @@
     <h1>All Books</h1>
 
     <ul>
-        {% for title in books %}
+        {% for book in books %}
             <li>
-                <a href="{{ url_for('books', books_id=books.id) }}">
-					Title: {{books.title}}, Author: {{books.title}}
-                </a>
+				<ul>
+					<li>ISBN IS: {{ book.isbn }}</li>
+					<li>Title is: {{ book.title }}</li>
+					<li>Author is: {{ book.author }}</li>
+					<li>Year is : {{ book.year }}</li>
+				</ul>
             </li>
         {% endfor %}
     </ul>
