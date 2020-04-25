@@ -25,3 +25,9 @@ app = Flask(__name__)
 @app.route("/")
 def index():
 	return render_template("index.html")
+	
+@app.route("/books")
+def flights():
+    """Lists all books."""
+    flights = db.execute("SELECT * FROM books LIMIT 50").fetchall()
+    return render_template("books.html", books=books)
