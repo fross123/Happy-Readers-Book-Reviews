@@ -8,7 +8,7 @@
     <h1>All Books</h1>
 
     <ul>
-        {% for book in books %}
+        {% for title in books %}
             <li>
                 <a href="{{ url_for('books', books_id=books.id) }}">
 					Title: {{books.title}}, Author: {{books.title}}

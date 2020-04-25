@@ -29,5 +29,5 @@ def index():
 @app.route("/books")
 def flights():
     """Lists all books."""
-    flights = db.execute("SELECT * FROM books LIMIT 50").fetchall()
+    books = db.execute("SELECT * FROM books LIMIT 10").fetchall()
     return render_template("books.html", books=books)
