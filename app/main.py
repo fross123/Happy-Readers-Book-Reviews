@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from boto.s3.connection import S3Connection
-s3 = S3Connection(os.environ['1357'], os.environ['246810'])
+s3 = S3Connection(os.environ['S3_KEY'], os.environ['S3_SECRET'])
 
 app = Flask(__name__)
 
