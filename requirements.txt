@@ -5,3 +5,4 @@ Flask-Session
 passlib
 psycopg2
 SQLAlchemy
+boto3
