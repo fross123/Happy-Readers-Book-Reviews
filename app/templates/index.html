@@ -6,8 +6,21 @@
 
 {% block body %}
     <h1>Books are Great!</h1>
-	<h2>Here is a list of books</h2>
+	<h2>To Write a Review, Please Sign In</h2>
 
-	
-	
+	<h3>Search for Books Below</h3>
+
+	<form action = "{{ url_for('books') }}" method="post">
+		<div class="form-group">
+			<select class="form-control" name="book_id">
+				{% for book in books %}
+					<option value="{{ book.id }}">{{ book.title }} by {{ book.author }}</option>
+				{% endfor %}
+			</select>
+		</div>
+
+		<div class="form-group">
+			<button class="btn btn-primary">Look Up Book Details</button>
+		</div>
+	</form>
 {% endblock %}
