@@ -10,7 +10,7 @@
 
 	<h3>See a list of books</h3>
 
-	<form action = "{{ url_for('review') }}" method="post">
+	<form action = "{{ url_for('index') }}" method="post">
 		<div class="form-group">
 			<select class="form-control" name="book">
 				{% for book in books %}
