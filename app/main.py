@@ -31,29 +31,5 @@ db = scoped_session(sessionmaker(bind=engine))
 def index():
 	books = db.execute("SELECT * FROM books").fetchall()
 	return render_template("index.html", books=books)
-	
-@app.route("/books/<int:books_id>", methods=["POST"])
-def book():
-	"""Book details"""
-	
-	book = request.form.get("book")
-	
-	#make sure book exists
-	book = db.execute("SELECT * FROM books WHERE id = :id", {"id":book_id}).fetchone()
-	if book is None:
-		return render_template("error.html", message="No such book.")
-		
-	#Get Reviews
-	#reviews = db.execute("SELECT name FROM reviews WHERE book_id :book_id", {"book_id": book_id}).fetchall
-	
-	
-	return render_template("book.html", book=books, reviews=reviews)
-	
-	
-@app.route("/books")
-def books():
-    """Lists 20 books."""
-    books = db.execute("SELECT * FROM books LIMIT 20").fetchall()
-    return render_template("books.html", books=books)
 
-
+@app.route("review")

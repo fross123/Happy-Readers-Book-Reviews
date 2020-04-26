@@ -8,15 +8,19 @@
     <h1>Books are Great!</h1>
 	<h2>To Write a Review, Please Sign In</h2>
 
-	<h3>Search for Books Below</h3>
+	<h3>See a list of books</h3>
 
-	<form action = "{{ url_for('books', books_id=books.id) }}" method="post">
+	<form action = "{{ url_for('review') }}" method="post">
 		<div class="form-group">
 			<select class="form-control" name="book">
 				{% for book in books %}
 					<option value="{{ books.id }}">{{ book.title }} by {{ book.author }}</option>
 				{% endfor %}
 			</select>
+		</div>
+		
+		<div class="form-group">
+			<input class="form-control" name="name" placeholder="Review">
 		</div>
 
 		<div class="form-group">
