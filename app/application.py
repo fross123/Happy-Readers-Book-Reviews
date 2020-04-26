@@ -1,7 +1,7 @@
 import os
 import psycopg2
 
-from flask import Flask, session, render_template, request
+from flask import Flask, session, render_template, request, redirect, abort, flash
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -27,17 +27,21 @@ Session(app)
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
+signed_in = []
+
 @app.route("/")
 def index():
-	books = db.execute("SELECT * FROM books").fetchall()
-	return render_template("index.html", books=books)
+	if not session.get('signed_in'):
+		return render_template('login.html')
+	else:
+		return render_template('index.html')
 
-@app.route("/login", methods=['GET', 'POST'])
-def login():
-	error=None
+@app.route("/login", methods=['POST'])
+def admin_login():
+
 	if request.method == 'POST':
-		if request.form['username'] != 'admin' or request.form['password'] != 'admin':
-			return render_template("error.html" message="Invalid Credintials")
+		if request.form['username'] == 'admin' and request.form['password'] == 'admin':
+			session['signed_in'] = True
 		else:
-			return redirect(url_for('home'))
-	return render_template('login.html', error=error)
+			return render_template('error.html', message="invalid login attempt")
+	return index()
