@@ -10,11 +10,11 @@
 
 	<h3>Search for Books Below</h3>
 
-	<form action = "{{ url_for('books') }}" method="post">
+	<form action = "{{ url_for('books', books_id=books.id) }}" method="post">
 		<div class="form-group">
-			<select class="form-control" name="book_id">
+			<select class="form-control" name="book">
 				{% for book in books %}
-					<option value="{{ book.id }}">{{ book.title }} by {{ book.author }}</option>
+					<option value="{{ books.id }}">{{ book.title }} by {{ book.author }}</option>
 				{% endfor %}
 			</select>
 		</div>
