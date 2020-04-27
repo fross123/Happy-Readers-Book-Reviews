@@ -21,8 +21,26 @@
 				
 			<input type="password" placeholder="Password" name="password" value="{{ request.form.password }}">
 				
-			<input class="btn btn-default" type="submit" value="Log in">
+			<input class="btn btn-primary" type="submit" value="Log in">
 		</form>
 	</div>
+
+	<h2>Signup for an Account Below</h2>
+	<div class="container">
+		<form action="/signup" method="post">
+			
+			<input type="text" placeholder="First Name" name="first_name" value="{{ request.form.first_name }}">
+			
+			<input type="text" placeholder="Username" name="last_name" value="{{ request.form.last_name }}">
+
+
+			<input type="text" placeholder="Username" name="username" value="{{ request.form.username }}">
+				
+			<input type="password" placeholder="Password" name="password" value="{{ request.form.password }}">
+				
+			<input class="btn btn-primary" type="submit" value="Log in">
+		</form>
+	</div>
+
 {% endblock %}
 

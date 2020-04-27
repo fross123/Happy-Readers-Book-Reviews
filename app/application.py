@@ -68,11 +68,12 @@ def login():
 	password = request.form.get('password')
 	
 	user = db.execute("SELECT * FROM users WHERE username = :username", {"username":username})
-	p_check = db.execute("SELECT * FROM users WHERE password = :password", {"password":password})
-	
 	
 	if user.rowcount == 0:
 		return render_template('error.html', message="Please Create an account.")
+	
+	elif db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username":username, "password":password}).fetchall == 1:
+		return render_template('error.html', message="username and password do not match.")
 		
 	else:
 		session ['signed_in'] = True
@@ -87,16 +88,15 @@ def signup():
 	username = request.form.get('username')
 	password = request.form.get('password')
 	
+	# See if user name and password is already created
+	if db.execute("SELECT * FROM users WHERE username = :username OR password = :password OR first_name = :first_name OR last_name = :last_name", {"username":username, "password":password, "first_name":first_name, "last_name":last_name}).rowcount > 0:
+		return login()
 	
-	
-	if user:
-		return redirect(url_for('signup'))
-	
-	# create new user with the form data. Hash the password so plaintext version isn't save.
-	db.execute("INSERT INTO users (first_name, last_name, username, password) VALUES (:first_name, :last_name, :username, :password)", {"first_name": f_name, "lat_name": l_name, "username": username, "password": password})
-	db.session.commit()
-	
-	return redirect(url_for('login'))
+	# create new user with the form data. Don't forget to hash password before final.
+	else:
+		db.execute("INSERT INTO users (first_name, last_name, username, password) VALUES (:first_name, :last_name, :username, :password)", {"first_name": first_name, "last_name": last_name, "username": username, "password": password})
+		db.commit()
+	return index()
 	
 @app.route("/logout")
 def logout():
