@@ -40,26 +40,7 @@ def index():
 	else:
 		books = db.execute("SELECT * FROM books").fetchall()
 		return render_template('index.html', books=books)
-			
-			
-@app.route("/review", methods=["POST"])
-def review():
-	"""Review a Book."""
-	
-	# Get form information
-	review = request.form.get("review")
-	try:
-		book_id = int(request.form.get("book_id"))
-	except ValueError:
-		return render_template("error.html", message="This is not a valid book")
 		
-	# Make sure book exists.
-	if db.execute("SELECT * FROM books WHERE id = :id", {"id":book_id}).rowcount == 0:
-		return render_template ("error.html", message="No such book with that id.")
-	db.execute("INSERT INTO reviews (user_id, review, book_id) VALUES (:user_id, :review, :book_id)", {"user_id": user_id, "review": review, "book_id": book_id})
-	db.commit()
-	return render_template("success.html")
-
 
 @app.route("/login", methods=['POST'])
 def login():
@@ -72,12 +53,14 @@ def login():
 	if user.rowcount == 0:
 		return render_template('error.html', message="Please Create an account.")
 	
-	elif db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username":username, "password":password}).fetchall == 1:
-		return render_template('error.html', message="username and password do not match.")
+	elif db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username":username, "password":password}).rowcount > 1:
+		return render_template('error.html', message="Username and password do not match.")
 		
-	else:
+	elif db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username":username, "password":password}).rowcount == 1:
 		session ['signed_in'] = True
 		return index()
+	else:
+		return render_template('error.html', message="looks like something went wrong, please try again")
 		
 		
 @app.route("/signup", methods=["POST"])
@@ -102,3 +85,22 @@ def signup():
 def logout():
 	session['signed_in'] = False
 	return index()
+
+
+@app.route("/review", methods=["POST"])
+def review():
+	"""Review a Book."""
+	
+	# Get form information
+	review = request.form.get("review")
+	try:
+		book_id = int(request.form.get("book_id"))
+	except ValueError:
+		return render_template("error.html", message="This is not a valid book")
+		
+	# Make sure book exists.
+	if db.execute("SELECT * FROM books WHERE id = :id", {"id":book_id}).rowcount == 0:
+		return render_template ("error.html", message="No such book with that id.")
+	db.execute("INSERT INTO reviews (user_id, review, book_id) VALUES (:user_id, :review, :book_id)", {"user_id": user_id, "review": review, "book_id": book_id})
+	db.commit()
+	return render_template("success.html")
