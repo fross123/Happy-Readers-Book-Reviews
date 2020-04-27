@@ -11,21 +11,22 @@
 	
 	<h3>See a list of books</h3>
 
-	<form action = "{{ url_for('index') }}" method="post">
+	<form action = "{{ url_for('review') }}" method="post">
+		
 		<div class="form-group">
-			<select class="form-control" name="book">
+			<select class="form-control" name="book_id">
 				{% for book in books %}
-					<option value="{{ books.id }}">{{ book.title }} by {{ book.author }}</option>
+					<option value="{{ book.id }}">{{ book.title }} by {{ book.author }}</option>
 				{% endfor %}
 			</select>
 		</div>
 		
 		<div class="form-group">
-			<input class="form-control" name="name" placeholder="Review">
+			<input class="form-control" name="review" placeholder="Write Your Review">
 		</div>
 
 		<div class="form-group">
-			<button class="btn btn-primary">Look Up Book Details</button>
+			<button class="btn btn-primary">Write a review</button>
 		</div>
 	</form>
 {% endblock %}
