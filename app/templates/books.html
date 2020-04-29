@@ -7,17 +7,20 @@
 {% block body %}
     <h1>All Books</h1>
 
-    <ul>
-        {% for book in books %}
-            <li>
-				<ul>
-					<li>ISBN IS: {{ book.isbn }}</li>
-					<li>Title is: {{ book.title }}</li>
-					<li>Author is: {{ book.author }}</li>
-					<li>Year is : {{ book.year }}</li>
-				</ul>
-            </li>
-        {% endfor %}
-    </ul>
-
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-3">ISBN</div>
+			<div class="col-md-3">Title</div>
+			<div class="col-md-3">Author</div>
+			<div class="col-md-3">Year</div>
+		</div>
+		{% for book in books %}
+			<div class="row">
+				<div class="col-md-3">{{ book.isbn }}</div>
+				<div class="col-md-3">{{ book.title }}</div>
+				<div class="col-md-3">{{ book.author }}</div>
+				<div class="col-md-3">{{ book.year }}</div>
+			</div>
+		{% endfor %}
+	</div>
 {% endblock %}

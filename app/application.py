@@ -102,8 +102,8 @@ def search():
         search_escape = '%' + search + '%'
         
         
-        # search by author or book
-        data = db.execute("SELECT * from books WHERE UPPER(title) LIKE UPPER(:search) OR UPPER(author) LIKE UPPER(:search)", {"search": search_escape})
+        # search by title, author, ISBN
+        data = db.execute("SELECT * from books WHERE UPPER(title) LIKE UPPER(:search) OR UPPER(author) LIKE UPPER(:search) OR UPPER(isbn) LIKE UPPER (:search)", {"search": search_escape})
         db.commit()
         results = data.fetchall()
         
