@@ -40,7 +40,7 @@ def index():
 	books = db.execute("SELECT * FROM books").fetchall()
 	
 	if 'user' in session:
-		return render_template('index.html', books=books, username=escape(session['user']))
+		return render_template('index.html', books=books, username=escape(session ['user']))
 	return render_template('login.html')
 	
 
@@ -72,21 +72,21 @@ def signup():
 	if request.method == "GET":
 		return render_template('signup.html')
 			
-	
-	first_name = request.form.get('first_name')
-	last_name = request.form.get('last_name')
-	username = request.form.get('username')
-	password = request.form.get('password')
-	
-	# See if user name and password is already created
-	if db.execute("SELECT * FROM users WHERE username = :username OR password = :password OR first_name = :first_name OR last_name = :last_name", {"username":username, "password":password, "first_name":first_name, "last_name":last_name}).rowcount > 0:
-		return login()
-	
-	# create new user with the form data. Don't forget to hash password before final.
-	else:
-		db.execute("INSERT INTO users (first_name, last_name, username, password) VALUES (:first_name, :last_name, :username, :password)", {"first_name": first_name, "last_name": last_name, "username": username, "password": password})
-		db.commit()
-	return index()
+	elif request.method == "POST":
+		first_name = request.form.get('first_name')
+		last_name = request.form.get('last_name')
+		username = request.form.get('username')
+		password = request.form.get('password')
+		
+		# See if user name and password is already created
+		if db.execute("SELECT * FROM users WHERE username = :username OR password = :password OR first_name = :first_name OR last_name = :last_name", {"username":username, "password":password, "first_name":first_name, "last_name":last_name}).rowcount > 0:
+			return login()
+		
+		# create new user with the form data. Don't forget to hash password before final.
+		else:
+			db.execute("INSERT INTO users (first_name, last_name, username, password) VALUES (:first_name, :last_name, :username, :password)", {"first_name": first_name, "last_name": last_name, "username": username, "password": password})
+			db.commit()
+		return index()
 		
 @app.route("/logout")
 def logout():
