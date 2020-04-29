@@ -33,6 +33,7 @@ Session(app)
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
+
 @app.route("/")
 def index():
 	books = db.execute("SELECT * FROM books").fetchall()
@@ -95,7 +96,8 @@ def signup():
 			db.execute("INSERT INTO users (first_name, last_name, username, password) VALUES (:first_name, :last_name, :username, :password)", {"first_name": first_name, "last_name": last_name, "username": username, "password": password})
 			db.commit()
 		return index()
-		
+	
+	
 @app.route("/logout")
 def logout():
 	# remove username from session.
@@ -122,11 +124,13 @@ def search():
         return render_template("books.html", books=results)
     return render_template("books.html")
     
+    
 @app.route("/books")
 def books():
 	
 	books = db.execute("SELECT * FROM books").fetchall()
 	return render_template("books.html", books=books)
+
 
 @app.route("/book/<int:book_id>")
 def book(book_id):
@@ -142,28 +146,25 @@ def book(book_id):
 	return render_template("book.html", book=book, review=review)
 	
 
-@app.route("/review/<int:book_id>", methods=["POST", "GET"])
+@app.route("/review/<int:book_id>", methods=["POST"])
 def review(book_id):
 	"""Review a Book."""
 	
-	if request.method == "GET":
-		return render_template('reviews.html')
-			
-	elif request.method == "POST":
-		# Get form information
-		review = request.form.get("review")
-		stars = request.form.get("stars")
-		username = session['user']
-		user_id = db.execute("SELECT id FROM users WHERE username = :username", {"username":username}).fetchone()[0]
-		
-		
-		# Make sure book exists.
-		if db.execute("SELECT * FROM books WHERE id = :id", {"id":book_id}).rowcount == 0:
-			return render_template ("error.html", message="No such book with that id.")
-		db.execute("INSERT INTO reviews (user_id, reviews, book_id, stars) VALUES (:user_id, :reviews, :book_id, :stars)", {"user_id": user_id, "reviews": review, "book_id": book_id, "stars": stars})
-		db.commit()
-		return render_template("success.html")
+	# Get form information
+	review = request.form.get("review")
+	stars = request.form.get("stars")
+	username = session['user']
+	user_id = db.execute("SELECT id FROM users WHERE username = :username", {"username":username}).fetchone()[0]
 	
+	
+	# Make sure book exists.
+	if db.execute("SELECT * FROM books WHERE id = :id", {"id":book_id}).rowcount == 0:
+		return render_template ("error.html", message="No such book with that id.")
+	db.execute("INSERT INTO reviews (user_id, reviews, book_id, stars) VALUES (:user_id, :reviews, :book_id, :stars)", {"user_id": user_id, "reviews": review, "book_id": book_id, "stars": stars})
+	db.commit()
+	return render_template("success.html")
+
+
 @app.errorhandler(404)
 def page_not_found(error):
 	return render_template('error.html', message="404 error, page not found")
