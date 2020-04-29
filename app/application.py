@@ -93,6 +93,26 @@ def logout():
 	# remove username from session.
 	session.pop('user', None)
 	return index()
+	
+	
+@app.route("/search", methods=['GET', 'POST'])
+def search():
+    if request.method == "POST":
+        search = request.form['search']
+        search_escape = '%' + search + '%'
+        
+        
+        # search by author or book
+        data = db.execute("SELECT * from books WHERE UPPER(title) LIKE UPPER(:search) OR UPPER(author) LIKE UPPER(:search)", {"search": search_escape})
+        db.commit()
+        results = data.fetchall()
+        
+        # all in the search box will return all the tuples
+        if len(results) == 0 and search == 'all':
+            all_data=db.execute("SELECT * from books")
+            results = all_data.fetchall()
+        return render_template('books.html', books=results)
+    return render_template('books.html')
 
 
 @app.route("/review", methods=["POST"])
