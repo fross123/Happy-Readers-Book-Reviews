@@ -14,7 +14,7 @@ app = Flask(__name__)
 app.secret_key = b'5)\x91\x15{\xc3\xa9o\x91\x95\xa9\xdc{\xb4V\xbd'
 
 
-#set database env for Heroku
+# Set database env for Heroku
 DATABASE_URL = os.environ['DATABASE_URL']
 
 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -24,7 +24,7 @@ conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 if not os.getenv("DATABASE_URL"):
     raise RuntimeError("DATABASE_URL is not set")
 
-#Configure session to use filesystem
+# Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
@@ -33,37 +33,45 @@ Session(app)
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
-user_id=[]
-
 @app.route("/")
 def index():
 	books = db.execute("SELECT * FROM books").fetchall()
 	
+	# Check if user is logged in
 	if 'user' in session:
-		return render_template('index.html', books=books, username=escape(session ['user']))
+		return render_template('index.html', books=books)
 	return render_template('login.html')
 	
 
-@app.route("/login", methods=['POST'])
+@app.route("/login", methods=['POST', 'GET'])
 def login():
+
+	if request.method == "GET":
+		return render_template('login.html')
+			
+	elif request.method == "POST":
 	
-	username = request.form.get('username')
-	password = request.form.get('password')
-	
-	user = db.execute("SELECT * FROM users WHERE username = :username", {"username":username})
-	
-	if user.rowcount == 0:
-		return render_template('error.html', message="Please Create an account.")
-	
-	elif db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username":username, "password":password}).rowcount > 1:
-		return render_template('error.html', message="Username and password do not match.")
+		username = request.form.get('username')
+		password = request.form.get('password')
 		
-	elif db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username":username, "password":password}).rowcount == 1:
-		session ['user'] = request.form['username']
+		user = db.execute("SELECT * FROM users WHERE username = :username", {"username":username})
 		
-		return redirect(url_for('index'))
-	else:
-		return render_template('error.html', message="looks like something went wrong, please try again")
+		if user.rowcount == 0:
+			return render_template('error.html', message="Please Create an account.")
+		
+		# Check for matching username or password
+		elif db.execute("SELECT * FROM users WHERE username = :username OR password = :password", {"username":username, "password":password}).rowcount > 1:
+			return render_template('error.html', message="Username and password do not match.")
+			
+		# Initiate session if username and password match and return one row.
+		elif db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username":username, "password":password}).rowcount == 1:
+			session ['user'] = request.form['username']
+			
+			return redirect(url_for('index'))
+			
+		# Any other issues.
+		else:
+			return render_template('error.html', message="looks like something went wrong, please try again")
 		
 		
 @app.route("/signup", methods=['POST', 'GET'])

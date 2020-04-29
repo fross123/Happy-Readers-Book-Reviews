@@ -5,20 +5,20 @@
 {% endblock %}
 
 {% block body %}
-	<div class="container">
-		<h1>Please login</h1>
-		<form action="/login" method="post">
-			
-			<input type="text" placeholder="Username" name="username" value="{{ request.form.username }}">
+	<center>
+		<div class="container">
+			<h1>Please login</h1>
+			<form action="/login" method="post">
 				
-			<input type="password" placeholder="Password" name="password" value="{{ request.form.password }}">
-				
-			<input class="btn btn-primary" type="submit" value="Log in">
-		</form>
-	</div>
-	<h1>Please Click Below To Signup For A New Account</h1>
-	
-	<a class="btn btn-primary" href="{{ url_for('signup') }}">Sign Up Here</a>
+				<input type="text" placeholder="Username" name="username" value="{{ request.form.username }}">
+					
+				<input type="password" placeholder="Password" name="password" value="{{ request.form.password }}">
+					
+				<input class="btn btn-primary" type="submit" value="Log in">
+			</form>
+		</div>		
+		<a class="btn btn-primary" href="{{ url_for('signup') }}">Sign Up Here</a>
+	</center>
 
 {% endblock %}
 

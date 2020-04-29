@@ -21,14 +21,34 @@
                         <li class="nav-item active">
                             <a class="nav-link" href="{{ url_for ('index') }}">Home <span class="sr-only">(current)</span></a>
                         </li>
+						
                         <li class="nav-item">
                             <a class="nav-link" href="#">Link</a>
                         </li>
-                    </ul>
+					</ul>
+					
+					<ul class="navbar-nav mr-2">
+						{% if session['user'] %}
+						<!-- Logged in -->
+						<li class="nav-item">
+                            <a class="btn btn-outline-primary" href="{{ url_for ('logout') }}">Sign Out</a>
+                        </li>
+						
+						{% else %}
+						<!-- Not Logged in -->
+						<li class="nav-item">
+                            <a class="btn btn-outline-primary" href="{{ url_for ('login') }}">Login</a>
+                        </li>
+						{% endif %}
+					</ul>
+
                     <form class="form-inline my-2 my-lg-0" action="/search" method="post">
                         <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search">
                         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
                     </form>
+
+					
+
                 </div>
             </nav>
         </header>
