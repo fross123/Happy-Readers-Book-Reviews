@@ -136,33 +136,33 @@ def book(book_id):
 	if book is None:
 		return render_template("error.html", message="No such book")
 		
-	# Get all Reviews
-	review = db.execute("SELECT reviews FROM reviews WHERE book_id = :book_id", {"book_id": book_id}).fetchall()
+	# Get Reviews for Book
+	review = db.execute("SELECT reviews, stars, first_name FROM reviews JOIN users ON reviews.user_id = users.id WHERE book_id = :book_id", {"book_id": book_id}).fetchall()
+	
 	return render_template("book.html", book=book, review=review)
 	
 
-@app.route("/review", methods=["POST"])
-def review():
+@app.route("/review/<int:book_id>", methods=["POST", "GET"])
+def review(book_id):
 	"""Review a Book."""
 	
-	# Get form information
-	review = request.form.get("review")
-	stars = request.form.get("stars")
-	username = session['user']
-	user_id = db.execute("SELECT * FROM users WHERE username = :username", {"username":username}).keys()
-	
-	
-	try:
-		book_id = int(request.form.get("book_id"))
-	except ValueError:
-		return render_template("error.html", message="This is not a valid book")
+	if request.method == "GET":
+		return render_template('reviews.html')
+			
+	elif request.method == "POST":
+		# Get form information
+		review = request.form.get("review")
+		stars = request.form.get("stars")
+		username = session['user']
+		user_id = db.execute("SELECT id FROM users WHERE username = :username", {"username":username}).fetchone()[0]
 		
-	# Make sure book exists.
-	if db.execute("SELECT * FROM books WHERE id = :id", {"id":book_id}).rowcount == 0:
-		return render_template ("error.html", message="No such book with that id.")
-	db.execute("INSERT INTO reviews (user_id, review, book_id, stars) VALUES (:user_id, :review, :book_id, :stars)", {"user_id": user_id, "review": review, "book_id": book_id, "stars": stars})
-	db.commit()
-	return render_template("success.html")
+		
+		# Make sure book exists.
+		if db.execute("SELECT * FROM books WHERE id = :id", {"id":book_id}).rowcount == 0:
+			return render_template ("error.html", message="No such book with that id.")
+		db.execute("INSERT INTO reviews (user_id, reviews, book_id, stars) VALUES (:user_id, :reviews, :book_id, :stars)", {"user_id": user_id, "reviews": review, "book_id": book_id, "stars": stars})
+		db.commit()
+		return render_template("success.html")
 	
 @app.errorhandler(404)
 def page_not_found(error):
