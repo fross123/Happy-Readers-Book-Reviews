@@ -16,7 +16,11 @@
 		</div>
 		{% for book in books %}
 			<div class="row">
-				<div class="col-md-3">{{ book.isbn }}</div>
+				<div class="col-md-3">
+					<a href= "{{ url_for('book', book_id=book.id) }}">
+					{{ book.isbn }}
+					</a>
+				</div>
 				<div class="col-md-3">{{ book.title }}</div>
 				<div class="col-md-3">{{ book.author }}</div>
 				<div class="col-md-3">{{ book.year }}</div>

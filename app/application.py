@@ -119,9 +119,27 @@ def search():
         if len(results) == 0 and search == 'all':
             all_data=db.execute("SELECT * from books")
             results = all_data.fetchall()
-        return render_template('books.html', books=results)
-    return render_template('books.html')
+        return render_template("books.html", books=results)
+    return render_template("books.html")
+    
+@app.route("/books")
+def books():
+	
+	books = db.execute("SELECT * FROM books").fetchall()
+	return render_template("books.html", books=books)
 
+@app.route("/book/<int:book_id>")
+def book(book_id):
+	
+	# Make sure book exists
+	book = db.execute("SELECT * FROM books WHERE id = :id", {"id": book_id}).fetchone()
+	if book is None:
+		return render_template("error.html", message="No such book")
+		
+	# Get all Reviews
+	review = db.execute("SELECT reviews FROM reviews WHERE book_id = :book_id", {"book_id": book_id}).fetchall()
+	return render_template("book.html", book=book, review=review)
+	
 
 @app.route("/review", methods=["POST"])
 def review():

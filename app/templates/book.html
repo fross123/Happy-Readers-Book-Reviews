@@ -8,10 +8,10 @@
     <h1>Book Details</h1>
 
     <ul>
-        <li>ISBN: {{ books.isbn }}</li>
-        <li>Title: {{ books.title }}</li>
-        <li>Author: {{ books.author}}</li>
-		<li>Year: {{ books.year }}
+        <li>ISBN: {{ book.isbn }}</li>
+        <li>Title: {{ book.title }}</li>
+        <li>Author: {{ book.author}}</li>
+		<li>Year: {{ book.year }}
     </ul>
 
     <h2>Reviews</h2>
@@ -19,7 +19,7 @@
         {% for review in reviews %}
             <li>{{ review.review_id }}</li>
         {% else %}
-            <li>No passengers.</li>
+            <li>No Reviews.</li>
         {% endfor %}
     </ul>
 
