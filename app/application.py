@@ -1,15 +1,17 @@
 import os
 import psycopg2
 
-from flask import Flask, session, render_template, request, redirect, abort
+from flask import Flask, session, render_template, request, redirect, abort, url_for
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+from markupsafe import escape
+
 
 app = Flask(__name__)
 
-#flask sessions secret key
-#app.secret_key = b'5)\x91\x15{\xc3\xa9o\x91\x95\xa9\xdc{\xb4V\xbd'
+# Flask Sessions secret key. Keep Secret because it is a secret.
+app.secret_key = b'5)\x91\x15{\xc3\xa9o\x91\x95\xa9\xdc{\xb4V\xbd'
 
 
 #set database env for Heroku
@@ -31,16 +33,16 @@ Session(app)
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
-signed_in = []
+user_id=[]
 
 @app.route("/")
 def index():
-	if not session.get('signed_in'):
-		return render_template('login.html')
-	else:
-		books = db.execute("SELECT * FROM books").fetchall()
-		return render_template('index.html', books=books)
-		
+	books = db.execute("SELECT * FROM books").fetchall()
+	
+	if 'user' in session:
+		return render_template('index.html', books=books, username=escape(session['user']))
+	return render_template('login.html')
+	
 
 @app.route("/login", methods=['POST'])
 def login():
@@ -57,15 +59,20 @@ def login():
 		return render_template('error.html', message="Username and password do not match.")
 		
 	elif db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username":username, "password":password}).rowcount == 1:
-		session ['signed_in'] = True
-		return index()
+		session ['user'] = request.form['username']
+		
+		return redirect(url_for('index'))
 	else:
 		return render_template('error.html', message="looks like something went wrong, please try again")
 		
 		
-@app.route("/signup", methods=["POST"])
+@app.route("/signup", methods=['POST', 'GET'])
 def signup():
 
+	if request.method == "GET":
+		return render_template('signup.html')
+			
+	
 	first_name = request.form.get('first_name')
 	last_name = request.form.get('last_name')
 	username = request.form.get('username')
@@ -80,10 +87,11 @@ def signup():
 		db.execute("INSERT INTO users (first_name, last_name, username, password) VALUES (:first_name, :last_name, :username, :password)", {"first_name": first_name, "last_name": last_name, "username": username, "password": password})
 		db.commit()
 	return index()
-	
+		
 @app.route("/logout")
 def logout():
-	session['signed_in'] = False
+	# remove username from session.
+	session.pop('user', None)
 	return index()
 
 
@@ -93,6 +101,11 @@ def review():
 	
 	# Get form information
 	review = request.form.get("review")
+	stars = request.form.get("stars")
+	username = session['user']
+	user_id = db.execute("SELECT * FROM users WHERE username = :username", {"username":username}).keys()
+	
+	
 	try:
 		book_id = int(request.form.get("book_id"))
 	except ValueError:
@@ -101,6 +114,10 @@ def review():
 	# Make sure book exists.
 	if db.execute("SELECT * FROM books WHERE id = :id", {"id":book_id}).rowcount == 0:
 		return render_template ("error.html", message="No such book with that id.")
-	db.execute("INSERT INTO reviews (user_id, review, book_id) VALUES (:user_id, :review, :book_id)", {"user_id": user_id, "review": review, "book_id": book_id})
+	db.execute("INSERT INTO reviews (user_id, review, book_id, stars) VALUES (:user_id, :review, :book_id, :stars)", {"user_id": user_id, "review": review, "book_id": book_id, "stars": stars})
 	db.commit()
 	return render_template("success.html")
+	
+@app.errorhandler(404)
+def page_not_found(error):
+	return render_template('error.html', message="404 error, page not found")
