@@ -1,5 +1,6 @@
 import os
 import psycopg2
+import requests
 
 from flask import Flask, session, render_template, request, redirect, abort, url_for
 from flask_session import Session
@@ -143,7 +144,20 @@ def book(book_id):
 	# Get Reviews for Book
 	review = db.execute("SELECT reviews, stars, first_name FROM reviews JOIN users ON reviews.user_id = users.id WHERE book_id = :book_id", {"book_id": book_id}).fetchall()
 	
-	return render_template("book.html", book=book, review=review)
+	# Get Goodreads Data
+	res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "rUuhDWjh4OfyuYmcQIwQQ", "isbns": book.isbn})
+		
+	# Goodreads Success?
+	if res.status_code != 200:
+		total_ratings = 0
+		average_rating = 0
+		
+	else:
+		data = res.json()
+		total_ratings = data["books"][0]["work_ratings_count"]
+		average_rating = data["books"][0]["average_rating"]
+		    
+	return render_template("book.html", book=book, review=review, total_ratings=total_ratings, average_rating=average_rating)
 	
 
 @app.route("/review/<int:book_id>", methods=["POST"])
@@ -163,8 +177,8 @@ def review(book_id):
 	db.execute("INSERT INTO reviews (user_id, reviews, book_id, stars) VALUES (:user_id, :reviews, :book_id, :stars)", {"user_id": user_id, "reviews": review, "book_id": book_id, "stars": stars})
 	db.commit()
 	return render_template("success.html")
-
-
+	
+	
 @app.errorhandler(404)
 def page_not_found(error):
 	return render_template('error.html', message="404 error, page not found")

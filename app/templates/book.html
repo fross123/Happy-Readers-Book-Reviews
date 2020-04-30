@@ -23,6 +23,11 @@
         {% endfor %}
     </ul>
 	<h2>Want to leave your own Review?</h2>
+
+	<h2>Goodreads Statistics</h2>
+
+	<h4>The Average Rating is: {{ average_rating }} </h4>
+	<h4>Out of {{ total_ratings }} reviews</h4>
 		
 	<form action="{{ url_for('review', book_id=book.id) }}" method="post">
 		<div class="form-group">
