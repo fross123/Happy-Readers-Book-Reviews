@@ -174,6 +174,10 @@ def review(book_id):
 	# Make sure book exists.
 	if db.execute("SELECT * FROM books WHERE id = :id", {"id":book_id}).rowcount == 0:
 		return render_template ("error.html", message="No such book with that id.")
+		
+	if db.execute("SELECT * FROM reviews WHERE user_id = :user_id AND book_id = :book_id", {"user_id":user_id, "book_id":book_id}).rowcount > 0:
+		return render_template ("error.html", message="You have already reviewed this book, sorry! Try reviewing another!")
+	
 	db.execute("INSERT INTO reviews (user_id, reviews, book_id, stars) VALUES (:user_id, :reviews, :book_id, :stars)", {"user_id": user_id, "reviews": review, "book_id": book_id, "stars": stars})
 	db.commit()
 	return render_template("success.html")
