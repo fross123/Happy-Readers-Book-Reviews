@@ -108,22 +108,29 @@ def logout():
 	
 @app.route("/search", methods=['GET', 'POST'])
 def search():
-    if request.method == "POST":
-        search = request.form['search']
-        search_escape = '%' + search + '%'
-        
-        
-        # search by title, author, ISBN
-        data = db.execute("SELECT * from books WHERE UPPER(title) LIKE UPPER(:search) OR UPPER(author) LIKE UPPER(:search) OR UPPER(isbn) LIKE UPPER (:search)", {"search": search_escape})
-        db.commit()
-        results = data.fetchall()
-        
-        # all in the search box will return all the tuples
-        if len(results) == 0 and search == 'all':
-            all_data=db.execute("SELECT * from books")
-            results = all_data.fetchall()
-        return render_template("books.html", books=results)
-    return render_template("books.html")
+	if request.method == "GET":
+		return render_template("index.html")
+		
+	elif request.method == "POST":
+		search = request.form['search']
+		search_escape = '%' + search + '%'
+
+		# search by title, author, ISBN
+		data = db.execute("SELECT * from books WHERE UPPER(title) LIKE UPPER(:search) OR UPPER(author) LIKE UPPER(:search) OR UPPER(isbn) LIKE UPPER (:search)", {"search": search_escape})
+		db.commit()
+		results = data.fetchall()
+
+		# all in the search box will return all the books
+		if len(results) == 0 and search == 'all':
+			all_data=db.execute("SELECT * from books")
+			results = all_data.fetchall()
+			
+		elif len(results) == 0:
+			return render_template("error.html", message="We are sorry, your search came up with no results")
+            
+		else:
+			return render_template("books.html", books=results)
+    
     
     
 @app.route("/books")
