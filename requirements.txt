@@ -5,3 +5,4 @@ passlib
 psycopg2
 SQLAlchemy
 Werkzeug==0.16.0
+requests
