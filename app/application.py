@@ -42,15 +42,15 @@ def index():
 	
 	# Check if user is logged in
 	if 'user' in session:
-		return render_template('index.html', books=books)
-	return render_template('login.html')
+		return render_template("index.html", books=books)
+	return render_template("login.html")
 	
 
-@app.route("/login", methods=['POST', 'GET'])
+@app.route("/login", methods=["POST", "GET"])
 def login():
 
 	if request.method == "GET":
-		return render_template('login.html')
+		return render_template("login.html")
 			
 	elif request.method == "POST":
 	
@@ -77,22 +77,22 @@ def login():
 			# hash matches password
 			elif check_hash == True:
 				session ['user'] = request.form['username']
-				return redirect(url_for('index'))
+				return redirect(url_for("index"))
 			
 			# Other issues
 			else:
-				return render_template('error.html', message="It like something went wrong, please try again")
+				return render_template("error.html", message="It looks like something went wrong, please try again")
 				
 		# Any other issues.
 		else:
-			return render_template('error.html', message="It looks like something went wrong, please try again")
+			return render_template("error.html", message="It looks like something went wrong, please try again")
 			
 		
-@app.route("/signup", methods=['POST', 'GET'])
+@app.route("/signup", methods=["POST", "GET"])
 def signup():
 
 	if request.method == "GET":
-		return render_template('signup.html')
+		return render_template("signup.html")
 			
 	elif request.method == "POST":
 		first_name = request.form.get('first_name')
@@ -119,7 +119,7 @@ def logout():
 	return index()
 	
 	
-@app.route("/search", methods=['GET', 'POST'])
+@app.route("/search", methods=["GET", "POST"])
 def search():
 	if request.method == "GET":
 		return index()
@@ -211,16 +211,16 @@ def review(book_id):
 	
 @app.errorhandler(404)
 def page_not_found(error):
-	return render_template('error.html', message="404 error, page not found")
+	return render_template("error.html", message="404 error, page not found")
 	
 	
-@app.route("/api/book/<string:isbn>")
+@app.route("/api/<string:isbn>", methods=["GET"])
 def book_api(isbn):
 	
 	book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
 
 	if book is None:
-		return jsonify({"error": "Invalid isbn"}), 404
+		return jsonify({"error": "ISBN is not in our database"}), 404
 	
 	# Make sure book exists
 	book_id = db.execute("SELECT id FROM books WHERE isbn = :isbn", {"isbn":isbn}).fetchone()[0]
