@@ -56,18 +56,21 @@ def login():
 	
 		username = request.form.get('username')
 		password = request.form.get('password')
-		password_hash = generate_password_hash(request.form.get('password'), "sha256")
 		
 		user = db.execute("SELECT * FROM users WHERE username = :username", {"username":username})
 		
+		# Check username against database.
 		if user.rowcount == 0:
 			return render_template('error.html', message="Please Create an account, we do not have a record of that username. Check spelling if you believe this was a mistake.")
-			
+		
+		# If username is in database.
 		elif user.rowcount == 1:
+			
+			# retrive database password and check hash.
 			data_password = db.execute("SELECT password FROM users WHERE username = :username", {"username":username}).fetchone()[0]
 			check_hash = check_password_hash(data_password, password)
 		
-			#make sure password matches
+			# make sure password matches
 			if check_hash == False:
 				return render_template('error.html', message="Password does not match.")
 		
