@@ -2,7 +2,7 @@ import os
 import psycopg2
 import requests
 
-from flask import Flask, session, render_template, request, redirect, abort, url_for
+from flask import Flask, session, render_template, request, jsonify, redirect, abort, url_for
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -105,7 +105,7 @@ def signup():
 		if db.execute("SELECT * FROM users WHERE username = :username OR password = :password OR first_name = :first_name OR last_name = :last_name", {"username":username, "password":password_hash, "first_name":first_name, "last_name":last_name}).rowcount > 0:
 			return login()
 		
-		# create new user with the form data. Don't forget to hash password before final.
+		# create new user with the form data.
 		else:
 			db.execute("INSERT INTO users (first_name, last_name, username, password) VALUES (:first_name, :last_name, :username, :password)", {"first_name": first_name, "last_name": last_name, "username": username, "password": password_hash})
 			db.commit()
@@ -122,7 +122,7 @@ def logout():
 @app.route("/search", methods=['GET', 'POST'])
 def search():
 	if request.method == "GET":
-		return render_template("index.html")
+		return index()
 		
 	elif request.method == "POST":
 		search = request.form['search']
@@ -148,13 +148,18 @@ def search():
     
 @app.route("/books")
 def books():
-	
+
+	# Page is technically availible without login.
 	books = db.execute("SELECT * FROM books").fetchall()
 	return render_template("books.html", books=books)
 
 
 @app.route("/book/<int:book_id>")
 def book(book_id):
+	
+	# Check if user is logged in
+	if 'user' not in session:
+		return index()
 	
 	# Make sure book exists
 	book = db.execute("SELECT * FROM books WHERE id = :id", {"id": book_id}).fetchone()
@@ -194,7 +199,8 @@ def review(book_id):
 	# Make sure book exists.
 	if db.execute("SELECT * FROM books WHERE id = :id", {"id":book_id}).rowcount == 0:
 		return render_template ("error.html", message="No such book with that id.")
-		
+	
+	# Check if reviewed
 	if db.execute("SELECT * FROM reviews WHERE user_id = :user_id AND book_id = :book_id", {"user_id":user_id, "book_id":book_id}).rowcount > 0:
 		return render_template ("error.html", message="You have already reviewed this book, sorry! Try reviewing another!")
 	
@@ -206,3 +212,29 @@ def review(book_id):
 @app.errorhandler(404)
 def page_not_found(error):
 	return render_template('error.html', message="404 error, page not found")
+	
+	
+@app.route("/api/book/<string:isbn>")
+def book_api(isbn):
+	
+	book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+
+	if book is None:
+		return jsonify({"error": "Invalid isbn"}), 404
+	
+	# Make sure book exists
+	book_id = db.execute("SELECT id FROM books WHERE isbn = :isbn", {"isbn":isbn}).fetchone()[0]
+	
+	# Get reviews
+	reviews = db.execute("SELECT * FROM reviews WHERE book_id = :book_id", {"book_id":book_id})
+	how_many_reviews = reviews.rowcount
+	stars = db.execute("SELECT AVG(stars) FROM reviews WHERE book_id = :book_id", {"book_id":book_id}).fetchone()[0]
+	
+	
+	return jsonify({
+			"title": book.title,
+			"author": book.author,
+			"year": book.year,
+			"isbn": book.isbn,
+			"review_count": how_many_reviews,
+			"average_score": stars})
