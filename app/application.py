@@ -7,6 +7,7 @@ from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from markupsafe import escape
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 app = Flask(__name__)
@@ -55,26 +56,34 @@ def login():
 	
 		username = request.form.get('username')
 		password = request.form.get('password')
+		password_hash = generate_password_hash(request.form.get('password'), "sha256")
 		
 		user = db.execute("SELECT * FROM users WHERE username = :username", {"username":username})
 		
 		if user.rowcount == 0:
-			return render_template('error.html', message="Please Create an account.")
+			return render_template('error.html', message="Please Create an account, we do not have a record of that username. Check spelling if you believe this was a mistake.")
+			
+		elif user.rowcount == 1:
+			data_password = db.execute("SELECT password FROM users WHERE username = :username", {"username":username}).fetchone()[0]
+			check_hash = check_password_hash(data_password, password)
 		
-		# Check for matching username or password
-		elif db.execute("SELECT * FROM users WHERE username = :username OR password = :password", {"username":username, "password":password}).rowcount > 1:
-			return render_template('error.html', message="Username and password do not match.")
+			#make sure password matches
+			if check_hash == False:
+				return render_template('error.html', message="Password does not match.")
+		
+			# hash matches password
+			elif check_hash == True:
+				session ['user'] = request.form['username']
+				return redirect(url_for('index'))
 			
-		# Initiate session if username and password match and return one row.
-		elif db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username":username, "password":password}).rowcount == 1:
-			session ['user'] = request.form['username']
-			
-			return redirect(url_for('index'))
-			
+			# Other issues
+			else:
+				return render_template('error.html', message="It like something went wrong, please try again")
+				
 		# Any other issues.
 		else:
-			return render_template('error.html', message="looks like something went wrong, please try again")
-		
+			return render_template('error.html', message="It looks like something went wrong, please try again")
+			
 		
 @app.route("/signup", methods=['POST', 'GET'])
 def signup():
@@ -87,14 +96,15 @@ def signup():
 		last_name = request.form.get('last_name')
 		username = request.form.get('username')
 		password = request.form.get('password')
+		password_hash = generate_password_hash(request.form.get('password'), "sha256")
 		
-		# See if user name and password is already created
-		if db.execute("SELECT * FROM users WHERE username = :username OR password = :password OR first_name = :first_name OR last_name = :last_name", {"username":username, "password":password, "first_name":first_name, "last_name":last_name}).rowcount > 0:
+		# See if user name or password is already created
+		if db.execute("SELECT * FROM users WHERE username = :username OR password = :password OR first_name = :first_name OR last_name = :last_name", {"username":username, "password":password_hash, "first_name":first_name, "last_name":last_name}).rowcount > 0:
 			return login()
 		
 		# create new user with the form data. Don't forget to hash password before final.
 		else:
-			db.execute("INSERT INTO users (first_name, last_name, username, password) VALUES (:first_name, :last_name, :username, :password)", {"first_name": first_name, "last_name": last_name, "username": username, "password": password})
+			db.execute("INSERT INTO users (first_name, last_name, username, password) VALUES (:first_name, :last_name, :username, :password)", {"first_name": first_name, "last_name": last_name, "username": username, "password": password_hash})
 			db.commit()
 		return index()
 	

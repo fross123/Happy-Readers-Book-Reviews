@@ -5,30 +5,44 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Book Details</h1>
+    <h1 class="text-center text-primary">Book Details</h1>
+	<h2 class="text-center">{{ book.title }} by {{ book.author }}</h2>
+	<h3 class="text-center">Year: {{ book.year }}</h3>
+	<h4 class="text-center">ISBN is {{ book.isbn }}
 
-    <ul>
-        <li>ISBN: {{ book.isbn }}</li>
-        <li>Title: {{ book.title }}</li>
-        <li>Author: {{ book.author}}</li>
-		<li>Year: {{ book.year }}
-    </ul>
-
-    <h2>Reviews</h2>
-    <ul>
-        {% for review in review %}
-			<li>{{ review.first_name }} Gave This Book {{ review.stars }} stars and said {{ review.reviews }} </li>
-        {% else %}
-            <li>No Reviews.</li>
-        {% endfor %}
-    </ul>
-
-	<h2>Goodreads Statistics</h2>
-
-	<h4>The Average Rating is: {{ average_rating }} </h4>
-	<h4>Out of {{ total_ratings }} reviews</h4>
+	<hr>
 		
-	<h2>Want to leave your own Review?</h2>
+	<h2 class="text-center">Reviews</h2>
+		<table class="table table-striped">
+		<thead>
+		  <tr>
+			<th scope="col">Name</th>
+			<th scope="col">Review</th>
+			<th scope="col">Stars</th>
+		  </tr>
+		</thead>
+		<tbody>
+		{% for review in review%}
+		  <tr>
+			  <th scope="row">{{ review.first_name }}</th>
+			<td>{{ review.reviews }}</td>
+			<td>{{ review.stars }}</td>
+		  </tr>
+		{% else %}
+			<tr>
+			  <th scope="row">No Reviews Yet, be the first!</th>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+	<hr>
+
+	<h2 class="text-center">Goodreads Statistics</h2>
+
+	<h4>The Average Rating is: {{ average_rating }} out of {{ total_ratings }} reviews</h4>
+		
+	<hr>
+	<h2 class="text-center">Want to leave your own Review?</h2>
 
 	<form action="{{ url_for('review', book_id=book.id) }}" method="post">
 		<div class="form-group">
