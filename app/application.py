@@ -102,7 +102,7 @@ def signup():
 		password_hash = generate_password_hash(request.form.get('password'), "sha256")
 		
 		# See if user name or password is already created
-		if db.execute("SELECT * FROM users WHERE username = :username OR password = :password OR first_name = :first_name OR last_name = :last_name", {"username":username, "password":password_hash, "first_name":first_name, "last_name":last_name}).rowcount > 0:
+		if db.execute("SELECT * FROM users WHERE username = :username OR password = :password AND first_name = :first_name AND last_name = :last_name", {"username":username, "password":password_hash, "first_name":first_name, "last_name":last_name}).rowcount > 0:
 			return login()
 		
 		# create new user with the form data.
