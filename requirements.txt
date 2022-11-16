@@ -1,8 +1,9 @@
 gunicorn
+markupsafe==2.0.1
 Flask
 Flask-Session
 passlib
-psycopg2
+psycopg2-binary
 SQLAlchemy
 Werkzeug==0.16.0
 requests
