@@ -2,7 +2,7 @@
 
 This was a project for [Web Programming with Python and JavaScript](https://docs.cs50.net/ocw/web/projects/1/project1.html)
 
-This is a book review website titled Happy-Readers. It is live at https://happy-readers.herokuapp.com/.
+This is a book review website titled Happy-Readers. It is live at https://happy-readers.up.railway.app/.
 
 A flask app built to allow users to sign in, register, and logout in order to review books. Users are allowed to post one review per book. Goodreads review counts are also displayed using the Goodreads API.
 
