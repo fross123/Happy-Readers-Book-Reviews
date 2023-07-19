@@ -1,5 +1,5 @@
 gunicorn
-markupsafe==2.0.1
+markupsafe
 Flask
 Flask-Session
 passlib
